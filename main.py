@@ -6,7 +6,6 @@ from picamera2 import Picamera2
 from dataclasses import dataclass
 from gpiozero import LED
 
-
 OUTPUT_RELATIVE_PATH = "./images"
 OUTPUT_ABSOLUTE_PATH = os.path.join(OUTPUT_RELATIVE_PATH, "capture.jpg")
 def validate_output_path(output_path: str):
@@ -14,8 +13,6 @@ def validate_output_path(output_path: str):
     if not os.path.exists(output_path):
         os.makedirs(output_path)
         print(f"Created directory: {output_path}")
-
-
 
 @dataclass
 class LedAttributes:
@@ -25,9 +22,9 @@ class LedAttributes:
     analogue_gain: float
 
 SPECTRAL_CHANNELS = {
-    "led1": LedAttributes(led=LED(17), exposure_time_us=10000, analogue_gain=1),
-    "led2": LedAttributes(led=LED(27), exposure_time_us=10000, analogue_gain=1),
-    "led3": LedAttributes(led=LED(22), exposure_time_us=10000, analogue_gain=1)
+    "led1": LedAttributes(led=LED(17), exposure_time_us=100000, analogue_gain=1),
+    "led2": LedAttributes(led=LED(27), exposure_time_us=100000, analogue_gain=1),
+    "led3": LedAttributes(led=LED(22), exposure_time_us=100000, analogue_gain=1)
 }
 
 def switch_lighting(target_band: str):
@@ -78,9 +75,14 @@ def capture_multispectral_image(camera: Picamera2, output_dir: str):
 def main():
     validate_output_path(OUTPUT_RELATIVE_PATH)
     try:
+        if not Picamera2.global_camera_info():
+            raise RuntimeError("No cameras detected")
         camera = Picamera2()
         capture_multispectral_image(camera, OUTPUT_RELATIVE_PATH)
     except RuntimeError as e:
+        print(f"\n[ERROR] Camera hardware connection failure: {e}", file=sys.stderr)
+        sys.exit(1)
+    except IndexError as e:
         print(f"\n[ERROR] Camera hardware connection failure: {e}", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
