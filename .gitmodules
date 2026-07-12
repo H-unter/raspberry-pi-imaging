@@ -1,0 +1,3 @@
+[submodule "NIRScanner-Python"]
+	path = NIRScanner-Python
+	url = https://github.com/HighTemplar-wjiang/NIRScanner-Python.git
